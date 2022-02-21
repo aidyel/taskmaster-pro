@@ -1,6 +1,6 @@
 var tasks = {};
 
-var createTask = function(taskText, taskDate, taskList) {
+var createTask = function (taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
   var taskSpan = $("<span>")
@@ -18,7 +18,7 @@ var createTask = function(taskText, taskDate, taskList) {
   $("#list-" + taskList).append(taskLi);
 };
 
-var loadTasks = function() {
+var loadTasks = function () {
   tasks = JSON.parse(localStorage.getItem("tasks"));
 
   // if nothing in localStorage, create a new object to track all task status arrays
@@ -32,33 +32,33 @@ var loadTasks = function() {
   }
 
   // loop over object properties
-  $.each(tasks, function(list, arr) {
+  $.each(tasks, function (list, arr) {
     console.log(list, arr);
     // then loop over sub-array
-    arr.forEach(function(task) {
+    arr.forEach(function (task) {
       createTask(task.text, task.date, list);
     });
   });
 };
 
-var saveTasks = function() {
+var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
 // modal was triggered
-$("#task-form-modal").on("show.bs.modal", function() {
+$("#task-form-modal").on("show.bs.modal", function () {
   // clear values
   $("#modalTaskDescription, #modalDueDate").val("");
 });
 
 // modal is fully visible
-$("#task-form-modal").on("shown.bs.modal", function() {
+$("#task-form-modal").on("shown.bs.modal", function () {
   // highlight textarea
   $("#modalTaskDescription").trigger("focus");
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$("#task-form-modal .btn-primary").click(function () {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -80,11 +80,11 @@ $("#task-form-modal .btn-primary").click(function() {
 });
 
 // task text was clicked
-$(".list-group").on("click", "p", function() {
+$(".list-group").on("click", "p", function () {
   // get current text of p element
   var text = $(this)
-  .text()
-  .trim();
+    .text()
+    .trim();
 
   //replace p element with new textarea
   var textInput = $("<textarea>").addClass("form-control").val(text);
@@ -95,46 +95,46 @@ $(".list-group").on("click", "p", function() {
 });
 
 // editable field was un-focus
-$(".list-group").on("blur", "textarea", function(){
+$(".list-group").on("blur", "textarea", function () {
   // get the textarea's current value/text
   var text = $(this).val();
 
   // get the textarea's current value/text
   var status = $(this)
-  .closest(".list-group")
-  .attr("id")
-  .replace("list-", "");
+    .closest(".list-group")
+    .attr("id")
+    .replace("list-", "");
 
   // get the task's position in the list of other li elements
   var index = $(this)
-  .closest(".list-group-item")
-  .index();
+    .closest(".list-group-item")
+    .index();
 
   // update task in array and re-save to lacalstorage
   tasks[status][index].text = text;
   saveTasks();
 
-// recreate p element
-var taskP = $("<p>")
-.addClass("m-1")
-.text(text);
+  // recreate p element
+  var taskP = $("<p>")
+    .addClass("m-1")
+    .text(text);
 
-// replave textare with p element
-$(this).replaceWith(taskP);
-  
+  // replave textare with p element
+  $(this).replaceWith(taskP);
+
 });
 
 // due date was clicked
-$(".list-group").on("vlick", "span", function(){
+$(".list-group").on("vlick", "span", function () {
   // get current text
   var date = $(this)
-  .text()
-  .trim();
+    .text()
+    .trim();
 
   // create new input element
   var dateInput = $("<input>")
-  .attr("type", "text")
-  .addClass("form-control")
+    .attr("type", "text")
+    .addClass("form-control")
   val(date);
 
   // swap out elements
@@ -144,18 +144,18 @@ $(".list-group").on("vlick", "span", function(){
   dateInput.trigger("focus");
 });
 
-$(".list-group").on("blur", "input[type='text']", function(){
+$(".list-group").on("blur", "input[type='text']", function () {
   // get current text
   var date = $(this).val();
 
   // get the parent ul's id atribute
   var status = $(this)
-  .closest(".list-group")
-  .attr("id")
-  .replace("list-", "");
+    .closest(".list-group")
+    .attr("id")
+    .replace("list-", "");
 
   var index = $(this)
-  .closest(".list-group-item")
+    .closest(".list-group-item")
   index();
 
   // get the task is array and re-save to localstorage
@@ -164,14 +164,14 @@ $(".list-group").on("blur", "input[type='text']", function(){
 
   // recreate span element with bootstrap classes
   var taskSpan = $("<span>")
-  .addClass("badge badge-primary badge-pill")
-  .text(date);
+    .addClass("badge badge-primary badge-pill")
+    .text(date);
   $(this).replaceWith(taskSpan);
 });
 
 
 // remove all tasks
-$("#remove-tasks").on("click", function() {
+$("#remove-tasks").on("click", function () {
   for (var key in tasks) {
     tasks[key].length = 0;
     $("#list-" + key).empty();
@@ -182,4 +182,62 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function (event) {
+    console.log("activate", this);
+  },
+  deactivate: function (event) {
+    console.log("deactivate", this);
+  },
+  out: function (event) {
+    console.log("out", event.target);
+  },
+  update: function (event) {
+    var tempArr = [];
 
+    // loop over current set of children in sortable list
+    $(this).children().each(function() {
+      var text = $(this)
+        .find("p")
+        .text()
+        .trim();
+
+      var date = $(this)
+        .find("span")
+        .text()
+        .trim();
+
+      tempArr.push ({
+        text: text,
+        date:date
+      })
+    });
+    console.log(temmpArr);
+    var arrName = $(this)
+      .attr("id")
+      .replace("list-", "");
+
+      // update array on tasks object and save
+      tasks[arrName] = tempArr;
+      saveTasks();
+  }
+});
+
+$("#trash").dropplable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    console.log("drop");
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
+.draggable.remove(),
+});
