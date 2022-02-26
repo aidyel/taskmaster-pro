@@ -83,19 +83,18 @@ $(".card .list-group").sortable({
   helper: "clone",
   activate: function(event, ui) {
     $(this).addClass("dropover")
-    $(".bottom-trash").removeClass("bottom-trash-drag")
+    $(".bottom-trash").addClass("bottom-trash-drag")
   },
   deactivate: function(event, ui) {
     $(this).removeClass("dropover")
+    $(".bottom-trash").removeClass("bottom-trash-drag")
   },
   over: function(event) {
     $(event.target).addClass("dropover-active")
-    $(".bottom-trash").addClass(".bottom-trash-active")
-    console.log(event);
+
   },
   out: function(event) {
     $(event.target).removeClass("dropover-active")
-    $(".bottom-trash").removeClass(".bottom-trash-active")
 
     console.log(event);
   },
